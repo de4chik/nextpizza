@@ -20,9 +20,9 @@ export class JwtService {
     return { accessToken, refreshToken };
   }
 
-  verifyToken(token: string): { email: string; userId: string } {
+  verifyToken(token: string, secret: string): { email: string; userId: string } {
     return this.jwtService.verify(token, {
-      secret: process.env.SERVER_TOKEN_ACCESS_SECRET,
+      secret: secret,
     }) as { email: string; userId: string };
   }
 }

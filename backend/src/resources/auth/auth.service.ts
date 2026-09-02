@@ -2,9 +2,10 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 import bcrypt from 'bcrypt';
 import { JwtService } from '../../utils/jwt/jwt.service';
 import { RegisterDto } from './dto/register.dto';
@@ -14,7 +15,6 @@ import { LoginDto } from './dto/login.dto';
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-
     private readonly jwtService: JwtService,
   ) {}
 
@@ -42,12 +42,9 @@ export class AuthService {
           httpOnly: true,
           secure: false,
         })
-        .cookie('accessToken', tokens.accessToken, {
-          httpOnly: true,
-          secure: false,
-        })
         .json({
           ...newUser,
+          accessToken: tokens.accessToken,
         });
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -84,12 +81,9 @@ export class AuthService {
           httpOnly: true,
           secure: false,
         })
-        .cookie('accessToken', tokens.accessToken, {
-          httpOnly: true,
-          secure: false,
-        })
         .json({
           ...findUser,
+          accessToken: tokens.accessToken,
         });
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -100,6 +94,35 @@ export class AuthService {
       throw new InternalServerErrorException(
         'Internal server error. Please try again later.',
       );
+    }
+  }
+
+  async refresh(request: Request, response: Response) {
+    const refreshToken = request.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+    try {
+      const payload = this.jwtService.verifyToken(
+        refreshToken,
+        process.env.SERVER_TOKEN_REFRESH_SECRET!,
+      );
+      const tokens = this.jwtService.generateToken({
+        userId: payload.userId,
+        email: payload.email,
+      });
+      return response
+        .status(200)
+        .cookie('refreshToken', tokens.refreshToken, {
+          httpOnly: true,
+          secure: false,
+        })
+        .json({
+          accessToken: tokens.accessToken,
+        });
+    } catch (error) {
+      console.log(error);
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }
