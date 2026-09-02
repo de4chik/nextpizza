@@ -1,4 +1,4 @@
-export interface User {
+export interface IUser {
   id: string;
   email: string;
   password: string;
@@ -8,7 +8,7 @@ export interface User {
   address?: string;
 }
 
-enum Role {
+export enum Role {
   ADMIN = 'ADMIN',
   USER = 'USER',
 }
