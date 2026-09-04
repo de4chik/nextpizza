@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IUser, Role } from '../../../types/user.type';
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto implements Omit<IUser, 'id' | 'role'> {
   @ApiProperty({ example: 'email@example.com', description: 'User email' })
@@ -16,6 +16,7 @@ export class CreateUserDto implements Omit<IUser, 'id' | 'role'> {
     description: 'User name',
     required: false,
   })
+  @IsOptional()
   @IsString({ message: 'Name must be a string' })
   name?: string;
 
@@ -24,6 +25,7 @@ export class CreateUserDto implements Omit<IUser, 'id' | 'role'> {
     description: 'User phone',
     required: false,
   })
+  @IsOptional()
   @IsString({ message: 'Phone must be a string' })
   phone?: string;
 
@@ -32,6 +34,7 @@ export class CreateUserDto implements Omit<IUser, 'id' | 'role'> {
     description: 'User address',
     required: false,
   })
+  @IsOptional()
   @IsString({ message: 'Address must be a string' })
   address?: string;
 }

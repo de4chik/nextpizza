@@ -4,6 +4,7 @@ import { PrismaModule } from './utils/prisma/prisma.module';
 import { UserModule } from './resources/user/user.module';
 import { AuthModule } from './resources/auth/auth.module';
 import { JwtModule } from './utils/jwt/jwt.module';
+import { CategoryModule } from './resources/category/category.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { JwtModule } from './utils/jwt/jwt.module';
     UserModule,
     AuthModule,
     JwtModule,
+    CategoryModule,
   ],
   controllers: [],
   providers: [],

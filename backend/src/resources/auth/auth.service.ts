@@ -33,7 +33,7 @@ export class AuthService {
       });
 
       const tokens = this.jwtService.generateToken({
-        userId: newUser.id,
+        id: newUser.id,
         email: newUser.email,
       });
       return response
@@ -72,7 +72,7 @@ export class AuthService {
         throw new ConflictException('Invalid email or password');
       }
       const tokens = this.jwtService.generateToken({
-        userId: findUser.id,
+        id: findUser.id,
         email: findUser.email,
       });
       return response
@@ -90,7 +90,6 @@ export class AuthService {
         throw new ConflictException(error.message);
       }
 
-      console.log(error);
       throw new InternalServerErrorException(
         'Internal server error. Please try again later.',
       );
@@ -108,7 +107,7 @@ export class AuthService {
         process.env.SERVER_TOKEN_REFRESH_SECRET!,
       );
       const tokens = this.jwtService.generateToken({
-        userId: payload.userId,
+        id: payload.id,
         email: payload.email,
       });
       return response
@@ -124,5 +123,24 @@ export class AuthService {
       console.log(error);
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  logout(response: Response) {
+    response.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: false,
+    });
+
+    return response.status(200).json({
+      message: 'Logged out successfully',
+    });
+  }
+
+  getProfile(request: Request, response: Response) {
+    const user = request.user;
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return response.status(200).json(user);
   }
 }
